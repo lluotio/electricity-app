@@ -8,6 +8,10 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+// routes
+const priceRouter = require("./routes/price");
+app.use("/api/price", priceRouter);
+
 // test endpoint
 app.get("/api/health", (req, res) => {
 	res.json({

@@ -1,47 +1,66 @@
 import { useEffect, useState } from "react";
 
-type HealthResponse = {
-	status: string;
-	timestamp: string;
+type PriceData = {
+	price: number;
+	currency: string;
+	updated: string;
 };
 
 function App() {
-	const [data, setData] = useState<HealthResponse | null>(null);
+	const [data, setData] = useState<PriceData | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	useEffect(() => {
-		const fetchHealth = async () => {
-			try {
-				const res = await fetch("http://localhost:3000/api/health");
+	const fetchPrice = async () => {
+		try {
+			setLoading(true);
 
-				if (!res.ok) {
-					throw new Error("Network response was not ok");
-				}
+			const res = await fetch("http://localhost:3000/api/price");
 
-				const json: HealthResponse = await res.json();
-				setData(json);
-			} catch (err: any) {
-				setError(err.message || "Unknown error");
-			} finally {
-				setLoading(false);
+			if (!res.ok) {
+				throw new Error("Failed to fetch price");
 			}
-		};
 
-		fetchHealth();
+			const json: PriceData = await res.json();
+			setData(json);
+			setError(null);
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setError(err.message);
+			} else {
+				setError("Unknown error");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchPrice();
 	}, []);
 
-	if (loading) return <div>Loading backend status...</div>;
-
-	if (error) return <div>Error: {error}</div>;
-
 	return (
-		<div style={{ padding: "20px", fontFamily: "sans-serif" }}>
+		<div style={{ fontFamily: "sans-serif", padding: 20 }}>
 			<h1>Electricity App Dashboard ⚡</h1>
 
-			<h2>Backend status:</h2>
-			<p>Status: {data?.status}</p>
-			<p>Timestamp: {data?.timestamp}</p>
+			{loading && <p>Loading...</p>}
+
+			{error && <p style={{ color: "red" }}>Error: {error}</p>}
+
+			{data && (
+				<div style={{ marginTop: 20 }}>
+					<p>
+						<strong>Price:</strong> {data.price} {data.currency}
+					</p>
+					<p>
+						<strong>Updated:</strong> {data.updated}
+					</p>
+				</div>
+			)}
+
+			<button onClick={fetchPrice} style={{ marginTop: 20 }}>
+				Refresh
+			</button>
 		</div>
 	);
 }
