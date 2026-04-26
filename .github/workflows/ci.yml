@@ -19,15 +19,14 @@ jobs:
           node-version: 20
 
       # FRONTEND
-      - name: Install frontend deps
-        working-directory: ./frontend
+      - name: Install deps (root)
         run: npm install
+
+      - name: Lint
+        run: npx biome check .
 
       - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
+        run: npm run build --prefix frontend
 
-      # BACKEND
       - name: Install backend deps
-        working-directory: ./backend
-        run: npm install
+        run: npm install --prefix backend
