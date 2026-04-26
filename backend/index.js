@@ -1,14 +1,22 @@
-const http = require('node:http');
+const express = require('express');
+const cors = require('cors');
 
-const hostname = '127.0.0.1';
+const app = express();
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
+// middlewares
+app.use(cors());
+app.use(express.json());
+
+// test endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  });
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+// start server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
